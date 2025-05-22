@@ -9,6 +9,7 @@ interface WallGoGameComponentState {
     hoverY: number;
     isValidHover: boolean;
     selectedStone: StoneType | null;
+    lastMovedStone: StoneType | null;
     reachablePositions: StonePosition[];
 }
 
@@ -22,6 +23,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
             hoverY: -1,
             isValidHover: false,
             selectedStone: null,
+            lastMovedStone: null,
             reachablePositions: []
         };
     }
@@ -38,7 +40,14 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
     handleMoveStone = (stone: any, row: number, col: number) => {
         try {
             const placableWalls = this.state.game.moveStone(stone, row, col);
-            this.setState({ game: this.state.game });
+            this.setState({ 
+                game: this.state.game,
+                selectedStone: null, // Clear selection after move
+                lastMovedStone: stone,
+                reachablePositions: this.state.game.getRemainingStepsAllowedForCurrentPlayer() === 1 
+                    ? this.state.game.getReachablePositionsInOneStep(new StonePosition(row, col))
+                    : []
+            });
         } catch (error) {
             console.error('Error moving stone:', error);
         }
@@ -55,6 +64,32 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
             console.error('Error placing wall:', error);
         }
     };
+
+    renderWallIndicators(stone: StoneType | null, keyPrefix: string, cellSize: number) {
+        if (!stone) return null;
+        
+        const placableWalls = this.state.game.getPlacableWallForStone(stone);
+        return placableWalls.map((wall, index) => {
+            const isHorizontal = wall.direction === WallDirection.Horizontal;
+            const wallThickness = 6;
+            const wallHeight = isHorizontal ? wallThickness : cellSize + wallThickness;
+            const wallWidth = isHorizontal ? cellSize + wallThickness : wallThickness;
+            const wallPosition = isHorizontal
+                ? { left: `${wall.x * cellSize - wallThickness / 2}px`, top: `${wall.y * cellSize - wallThickness / 2}px` }
+                : { left: `${wall.x * cellSize - wallThickness / 2}px`, top: `${wall.y * cellSize - wallThickness / 2}px` };
+            return (
+                <div
+                    key={`${keyPrefix}${index}`}
+                    className={`wall-indicator player-${wall.player} ${isHorizontal ? 'horizontal' : 'vertical'}`}
+                    style={{
+                        ...wallPosition,
+                        width: `${wallWidth}px`,
+                        height: `${wallHeight}px`
+                    }}
+                />
+            );
+        });
+    }
 
     render() {
         const boardSize = 7; // Default board size from GameConfig
@@ -126,10 +161,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 const reachablePositions = this.state.game.getReachablePositionsInOneStep(stone.position);
                                 this.setState({
                                     selectedStone: stone,
-                                    reachablePositions,
-                                    hoverX: -1,
-                                    hoverY: -1,
-                                    isValidHover: false
+                                    reachablePositions
                                 });
                             } else if (this.state.selectedStone && remainingSteps > 0) {
                                 try {
@@ -137,10 +169,9 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                     this.setState({
                                         game: this.state.game,
                                         selectedStone: null,
+                                        lastMovedStone: this.state.selectedStone,
                                         reachablePositions: [],
-                                        hoverX: x,
-                                        hoverY: y,
-                                        isValidHover: true
+                                        isValidHover: false
                                     });
                                 } catch (error) {
                                     console.error('Error moving stone:', error);
@@ -177,47 +208,40 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 isMovable={gamePhase === GamePhase.Moving && playerIndex === currentPlayer} />
                         ))
                     )}
-                    {/* Add hover effect */}
                     {gamePhase === GamePhase.PlacingStones && this.state.isValidHover && (
                         <div className={`cell-hover player-${currentPlayer}`} style={{
                             left: `${this.state.hoverX * cellSize + cellSize / 2}px`,
                             top: `${this.state.hoverY * cellSize + cellSize / 2}px`
                         }} />
                     )}
-                    {/* Show reachable positions */}
-                    {gamePhase === GamePhase.Moving && this.state.selectedStone && (
+                    {gamePhase === GamePhase.Moving && (
                         <>
-                            {this.state.reachablePositions.map((pos, index) => (
-                                <div key={index} className={`cell-hover player-${currentPlayer}`} style={{
-                                    left: `${pos.x * cellSize + cellSize / 2}px`,
-                                    top: `${pos.y * cellSize + cellSize / 2}px`
-                                }} />
-                            ))}
-                            {/* Show wall placement indicators */}
-                            {this.state.game.getPlacableWallForStone(this.state.selectedStone).map((wall, index) => {
-                                console.log('Wall:', wall);
-                                const isHorizontal = wall.direction === WallDirection.Horizontal;
-                                const wallThickness = 4;
-                                const wallHeight = isHorizontal ? wallThickness : cellSize + wallThickness;
-                                const wallWidth = isHorizontal ? cellSize + wallThickness : wallThickness;
-                                const wallPosition = isHorizontal
-                                    ? { left: `${wall.x * cellSize - wallThickness / 2}px`, top: `${wall.y * cellSize - wallThickness / 2}px` }
-                                    : { left: `${wall.x * cellSize - wallThickness / 2}px`, top: `${wall.y * cellSize - wallThickness / 2}px` };
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`wall-indicator ${isHorizontal ? 'horizontal' : 'vertical'}`}
-                                        style={{
-                                            ...wallPosition,
-                                            width: `${wallWidth}px`,
-                                            height: `${wallHeight}px`
-                                        }}
-                                    />
-                                );
-                            })}
+                            {/* Show reachable positions for selected stone */}
+                            {this.state.selectedStone && (
+                                <>
+                                    {this.state.reachablePositions.map((pos, index) => (
+                                        <div key={index} className={`cell-hover player-${currentPlayer}`} style={{
+                                            left: `${pos.x * cellSize + cellSize / 2}px`,
+                                            top: `${pos.y * cellSize + cellSize / 2}px`
+                                        }} />
+                                    ))}
+                                </>
+                            )}
+                            {/* Show reachable positions for last moved stone if it's the second step */}
+                            {this.state.lastMovedStone && this.state.game.getRemainingStepsAllowedForCurrentPlayer() === 1 && (
+                                <>
+                                    {this.state.game.getReachablePositionsInOneStep(this.state.lastMovedStone.position).map((pos, index) => (
+                                        <div key={`second-step-${index}`} className={`cell-hover player-${currentPlayer}`} style={{
+                                            left: `${pos.x * cellSize + cellSize / 2}px`,
+                                            top: `${pos.y * cellSize + cellSize / 2}px`
+                                        }} />
+                                    ))}
+                                </>
+                            )}
                         </>
                     )}
-
+                    {this.renderWallIndicators(this.state.selectedStone, 'wall-', cellSize)}
+                    {this.renderWallIndicators(this.state.lastMovedStone, 'last-wall-', cellSize)}
                 </div>
             </div>
         );

@@ -61,7 +61,14 @@
   position: absolute;
   opacity: 0.3;
   transition: opacity 0.2s;
-  background-color: #000;
+}
+
+.wall-indicator.player-0 {
+  background-color: #FF0000;
+}
+
+.wall-indicator.player-1 {
+  background-color: #0000FF;
 }
 
 .wall-indicator.horizontal {

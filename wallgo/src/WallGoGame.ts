@@ -92,6 +92,10 @@ export class WallGoGame {
         return this.currentPlayer;
     }
 
+    public getBoardSize(): number {
+        return this.config.boardSize;
+    }
+
     public startNextPlayer(): void {
         this.currentPlayer = (this.currentPlayer + 1) % this.config.numPlayers;
         this.remainingStepsAllowedForCurrentPlayer = 2;

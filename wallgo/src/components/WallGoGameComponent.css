@@ -35,6 +35,29 @@
   color: #333;
 }
 
+.scores-container {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+}
+
+.score-item {
+  margin: 4px 0;
+}
+
+.score-item span {
+  font-weight: 500;
+  padding-right: 4px;
+}
+
+.score-item span.player-0 {
+  color: #FF0000;
+}
+
+.score-item span.player-1 {
+  color: #0000FF;
+}
+
 .player-indicator {
   width: 20px;
   height: 20px;

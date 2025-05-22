@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { WallGoGame, GamePhase, GameConfig, Stone as StoneType, StonePosition, WallDirection } from '../WallGoGame';
+import { WallGoGame, GamePhase, GameConfig, Stone as StoneType, StonePosition, WallDirection, GameResult } from '../WallGoGame';
 import { Stone } from './Stone';
 import './WallGoGameComponent.css';
 
@@ -11,6 +11,7 @@ interface WallGoGameComponentState {
     selectedStone: StoneType | null;
     lastMovedStone: StoneType | null;
     reachablePositions: StonePosition[];
+    result: GameResult | null;
 }
 
 export class WallGoGameComponent extends Component<{}, WallGoGameComponentState> {
@@ -24,7 +25,8 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
             isValidHover: false,
             selectedStone: null,
             lastMovedStone: null,
-            reachablePositions: []
+            reachablePositions: [],
+            result: null,
         };
     }
 
@@ -59,7 +61,8 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 game: this.state.game,
                                 selectedStone: null,
                                 lastMovedStone: null,
-                                reachablePositions: []
+                                reachablePositions: [],
+                                result: result
                             });
                         } catch (error) {
                             console.error('Error placing wall:', error);
@@ -71,7 +74,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
     }
 
     render() {
-        const boardSize = 7; // Default board size from GameConfig
+        const boardSize = this.state.game.getBoardSize();
         const cellSize = 500 / boardSize;
         const currentPlayer = this.state.game.getCurrentPlayer();
         const stones = this.state.game.getStones();
@@ -82,9 +85,20 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                 <div className="game-info">
                     <p>Phase: {GamePhase[gamePhase]}</p>
                     {gamePhase === GamePhase.Over ? (
-                        <div className="player-indicator-container">
-                            <span>Winner: </span>
-                            <div className={`player-indicator player-${this.state.game.getCurrentPlayer()}`} />
+                        <div>
+                            <div className="player-indicator-container">
+                                <span>Winner: </span>
+                                <div className={`player-indicator player-${this.state.result?.winner}`} />
+                            </div>
+                            {this.state.result && (
+                                <div className="scores-container">
+                                    {this.state.result.regions.map((region, player) => (
+                                        <div key={player} className="score-item">
+                                            <span className={`player-${player}`}>Player {player + 1}</span>: {region.size}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="player-indicator-container">

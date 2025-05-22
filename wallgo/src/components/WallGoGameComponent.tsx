@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { WallGoGame, GamePhase, GameConfig } from '../WallGoGame';
+import { WallGoGame, GamePhase, GameConfig, Stone as StoneType, StonePosition } from '../WallGoGame';
 import { Stone } from './Stone';
 import './WallGoGameComponent.css';
 
@@ -8,6 +8,8 @@ interface WallGoGameComponentState {
     hoverX: number;
     hoverY: number;
     isValidHover: boolean;
+    selectedStone: StoneType | null;
+    reachablePositions: StonePosition[];
 }
 
 export class WallGoGameComponent extends Component<{}, WallGoGameComponentState> {
@@ -18,7 +20,9 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
             game: new WallGoGame(config),
             hoverX: -1,
             hoverY: -1,
-            isValidHover: false
+            isValidHover: false,
+            selectedStone: null,
+            reachablePositions: []
         };
     }
 
@@ -42,7 +46,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
 
     handleWallPlaced = (stone: any, wall: any) => {
         try {
-            const result = this.state.game.placeWallAfterMovingStone(stone, wall);
+            const result = this.state.game.placeWallForStone(stone, wall);
             if (result) {
                 console.log('Game over! Winner:', result.winner);
             }
@@ -94,6 +98,13 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         }
                     }}
                     onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = Math.floor((e.clientX - rect.left) / cellSize);
+                        const y = Math.floor((e.clientY - rect.top) / cellSize);
+                        const stones = this.state.game.getStones();
+                        const currentPlayer = this.state.game.getCurrentPlayer();
+                        const remainingSteps = this.state.game.getRemainingStepsAllowedForCurrentPlayer();
+                        
                         if (gamePhase === GamePhase.PlacingStones && this.state.isValidHover) {
                             try {
                                 this.state.game.placeStone(this.state.hoverX, this.state.hoverY);
@@ -105,6 +116,35 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 });
                             } catch (error) {
                                 console.error('Error placing stone:', error);
+                            }
+                        } else if (gamePhase === GamePhase.Moving) {
+                            const stone = stones[currentPlayer].find(s => 
+                                s.position.x === x && s.position.y === y
+                            );
+                            
+                            if (stone && remainingSteps > 0) {
+                                const reachablePositions = this.state.game.getReachablePositionsInOneStep(stone.position);
+                                this.setState({
+                                    selectedStone: stone,
+                                    reachablePositions,
+                                    hoverX: -1,
+                                    hoverY: -1,
+                                    isValidHover: false
+                                });
+                            } else if (this.state.selectedStone && remainingSteps > 0) {
+                                try {
+                                    const placableWalls = this.state.game.moveStone(this.state.selectedStone, x, y);
+                                    this.setState({ 
+                                        game: this.state.game,
+                                        selectedStone: null,
+                                        reachablePositions: [],
+                                        hoverX: x,
+                                        hoverY: y,
+                                        isValidHover: true
+                                    });
+                                } catch (error) {
+                                    console.error('Error moving stone:', error);
+                                }
                             }
                         }
                     }}
@@ -143,6 +183,15 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                             left: `${this.state.hoverX * cellSize + cellSize/2}px`,
                             top: `${this.state.hoverY * cellSize + cellSize/2}px`
                         }} />
+                    )}
+                    {/* Show reachable positions */}
+                    {gamePhase === GamePhase.Moving && this.state.selectedStone && (
+                        this.state.reachablePositions.map((pos, index) => (
+                            <div key={index} className={`cell-hover player-${currentPlayer}`} style={{
+                                left: `${pos.x * cellSize + cellSize/2}px`,
+                                top: `${pos.y * cellSize + cellSize/2}px`
+                            }} />
+                        ))
                     )}
 
                 </div>

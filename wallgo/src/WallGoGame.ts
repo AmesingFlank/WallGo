@@ -66,6 +66,7 @@ export class WallGoGame {
     private stones: Stone[][];
 
     private currentPlayer: number;
+    private remainingStepsAllowedForCurrentPlayer: number;
     private gamePhase: GamePhase;
 
     constructor(config: GameConfig) {
@@ -84,6 +85,7 @@ export class WallGoGame {
         );
         this.currentPlayer = 0;
         this.gamePhase = GamePhase.PlacingStones;
+        this.remainingStepsAllowedForCurrentPlayer = 2;
     }
 
     public getCurrentPlayer(): number {
@@ -92,6 +94,7 @@ export class WallGoGame {
 
     public startNextPlayer(): void {
         this.currentPlayer = (this.currentPlayer + 1) % this.config.numPlayers;
+        this.remainingStepsAllowedForCurrentPlayer = 2;
     }
 
     public getGamePhase(): GamePhase {
@@ -145,6 +148,10 @@ export class WallGoGame {
         this.startNextPlayer();
     }
 
+    public getRemainingStepsAllowedForCurrentPlayer(): number {
+        return this.remainingStepsAllowedForCurrentPlayer;
+    }
+
     public getReachablePositionsInOneStep(position: StonePosition): StonePosition[] {
         // in 1 step, each stone can rech the cell to the left, right, up, or down, as long as there are no walls blocking
         let reachablePositionsOneStep: StonePosition[] = [];
@@ -160,19 +167,7 @@ export class WallGoGame {
         if (position.y < this.config.boardSize - 1 && this.verticalWalls[position.x][position.y + 1] === null) {
             reachablePositionsOneStep.push(new StonePosition(position.x, position.y + 1));
         }
-        return reachablePositionsOneStep;
-    }
-
-    public getReachablePositionsInOneMove(position: StonePosition): StonePosition[] {
-        let reachablePositionsOneStep = this.getReachablePositionsInOneStep(position);
-        // each move can be 1 step or 2 steps
-        let allReachablePositions: StonePosition[] = [];
-        allReachablePositions.push(...reachablePositionsOneStep);
-
-        for (let pos of reachablePositionsOneStep) {
-            allReachablePositions.push(...this.getReachablePositionsInOneStep(pos));
-        }
-        return allReachablePositions;
+        return reachablePositionsOneStep.filter((pos) => this.cells[pos.x][pos.y] === null);
     }
 
     public getReachableRegionForPlayer(player: number): ReachableRegion {
@@ -201,7 +196,10 @@ export class WallGoGame {
         if (this.gamePhase !== GamePhase.Moving) {
             return false;
         }
-        let reachablePositions = this.getReachablePositionsInOneMove(stone.position);
+        if(this.remainingStepsAllowedForCurrentPlayer  === 0){
+            return false;   
+        }
+        let reachablePositions = this.getReachablePositionsInOneStep(stone.position);
         return reachablePositions.some((pos) => pos.x === x && pos.y === y);
     }
 
@@ -237,11 +235,11 @@ export class WallGoGame {
         stone.position.x = x;
         stone.position.y = y;
         this.cells[x][y] = stone;
-        this.startNextPlayer();
+        this.remainingStepsAllowedForCurrentPlayer--;
         return this.getPlacableWallForStone(stone);
     }
 
-    public placeWallAfterMovingStone(stone: Stone, wall: Wall): GameResult | null {
+    public placeWallForStone(stone: Stone, wall: Wall): GameResult | null {
         if (stone.player !== this.currentPlayer) {
             throw new Error("It is not this player's turn");
         }
@@ -253,6 +251,7 @@ export class WallGoGame {
         } else {
             this.verticalWalls[wall.x][wall.y] = wall;
         }
+        this.startNextPlayer(); 
         let maybeResult = this.checkForGameCompletion();
         if(maybeResult) {
             this.gamePhase = GamePhase.Over;

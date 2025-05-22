@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { WallGoGame, GamePhase, GameConfig, Stone as StoneType, StonePosition } from '../WallGoGame';
+import { WallGoGame, GamePhase, GameConfig, Stone as StoneType, StonePosition, WallDirection } from '../WallGoGame';
 import { Stone } from './Stone';
 import './WallGoGameComponent.css';
 
@@ -186,12 +186,35 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                     )}
                     {/* Show reachable positions */}
                     {gamePhase === GamePhase.Moving && this.state.selectedStone && (
-                        this.state.reachablePositions.map((pos, index) => (
-                            <div key={index} className={`cell-hover player-${currentPlayer}`} style={{
-                                left: `${pos.x * cellSize + cellSize/2}px`,
-                                top: `${pos.y * cellSize + cellSize/2}px`
-                            }} />
-                        ))
+                        <>
+                            {this.state.reachablePositions.map((pos, index) => (
+                                <div key={index} className={`cell-hover player-${currentPlayer}`} style={{
+                                    left: `${pos.x * cellSize + cellSize/2}px`,
+                                    top: `${pos.y * cellSize + cellSize/2}px`
+                                }} />
+                            ))}
+                            {/* Show wall placement indicators */}
+                            {this.state.game.getPlacableWallForStone(this.state.selectedStone).map((wall, index) => {
+                                console.log('Wall:', wall);
+                                const isHorizontal = wall.direction === WallDirection.Horizontal;
+                                const wallSize = isHorizontal ? 1 : cellSize;
+                                const wallLength = isHorizontal ? cellSize : 1;
+                                const wallPosition = isHorizontal 
+                                    ? { left: `${wall.x * cellSize}px`, top: `${wall.y * cellSize}px` }
+                                    : { left: `${wall.x * cellSize}px`, top: `${wall.y * cellSize}px` };
+                                return (
+                                    <div 
+                                        key={index}
+                                        className={`wall-indicator ${isHorizontal ? 'horizontal' : 'vertical'}`}
+                                        style={{
+                                            ...wallPosition,
+                                            width: `${wallLength}px`,
+                                            height: `${wallSize}px`
+                                        }}
+                                    />
+                                );
+                            })}
+                        </>
                     )}
 
                 </div>

@@ -204,7 +204,7 @@ export class WallGoGame {
     }
 
 
-    private getPlacableWallForStone(stone: Stone): Wall[] {
+    public getPlacableWallForStone(stone: Stone): Wall[] {
         // after moving a stone, the player must place a wall in one of the 4 walls neighboring the new position of the stone.
         // there must not be an existing wall there
         let placableWalls: Wall[] = [];

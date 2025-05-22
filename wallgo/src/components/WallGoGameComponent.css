@@ -57,6 +57,27 @@
   background-color: #fff;
 }
 
+.wall-indicator {
+  position: absolute;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+  background-color: #000;
+}
+
+.wall-indicator.horizontal {
+  height: 1px;
+  width: 50px;
+}
+
+.wall-indicator.vertical {
+  width: 1px;
+  height: 50px;
+}
+
+.wall-indicator:hover {
+  opacity: 0.6;
+}
+
 .cell-hover {
   position: absolute;
   width: 30px;

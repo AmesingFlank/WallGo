@@ -197,7 +197,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 });
                             } else if (this.state.selectedStone && remainingSteps > 0) {
                                 if (this.state.game.canMoveStoneTo(this.state.selectedStone, x, y)) {
-                                    const placableWalls = this.state.game.moveStone(this.state.selectedStone, x, y);
+                                    this.state.game.moveStone(this.state.selectedStone, x, y);
                                     this.setState({
                                         game: this.state.game,
                                         selectedStone: this.state.selectedStone,

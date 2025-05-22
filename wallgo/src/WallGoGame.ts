@@ -155,16 +155,16 @@ export class WallGoGame {
     public getReachablePositionsInOneStep(position: StonePosition): StonePosition[] {
         // in 1 step, each stone can rech the cell to the left, right, up, or down, as long as there are no walls blocking
         let reachablePositionsOneStep: StonePosition[] = [];
-        if (position.x > 0 && this.horizontalWalls[position.x][position.y] === null) {
+        if (position.x > 0 && this.verticalWalls[position.x][position.y] === null) {
             reachablePositionsOneStep.push(new StonePosition(position.x - 1, position.y));
         }
-        if (position.x < this.config.boardSize - 1 && this.horizontalWalls[position.x + 1][position.y] === null) {
+        if (position.x < this.config.boardSize - 1 && this.verticalWalls[position.x + 1][position.y] === null) {
             reachablePositionsOneStep.push(new StonePosition(position.x + 1, position.y));
         }
-        if (position.y > 0 && this.verticalWalls[position.x][position.y] === null) {
+        if (position.y > 0 && this.horizontalWalls[position.x][position.y] === null) {
             reachablePositionsOneStep.push(new StonePosition(position.x, position.y - 1));
         }
-        if (position.y < this.config.boardSize - 1 && this.verticalWalls[position.x][position.y + 1] === null) {
+        if (position.y < this.config.boardSize - 1 && this.horizontalWalls[position.x][position.y + 1] === null) {
             reachablePositionsOneStep.push(new StonePosition(position.x, position.y + 1));
         }
         return reachablePositionsOneStep.filter((pos) => this.cells[pos.x][pos.y] === null);
@@ -196,11 +196,11 @@ export class WallGoGame {
         if (this.gamePhase !== GamePhase.Moving) {
             return false;
         }
-        if(this.currentPlayer !== stone.player){
+        if (this.currentPlayer !== stone.player) {
             return false;
         }
-        if(this.remainingStepsAllowedForCurrentPlayer  === 0){
-            return false;   
+        if (this.remainingStepsAllowedForCurrentPlayer === 0) {
+            return false;
         }
         let reachablePositions = this.getReachablePositionsInOneStep(stone.position);
         return reachablePositions.some((pos) => pos.x === x && pos.y === y);
@@ -254,9 +254,9 @@ export class WallGoGame {
         } else {
             this.verticalWalls[wall.x][wall.y] = wall;
         }
-        this.startNextPlayer(); 
+        this.startNextPlayer();
         let maybeResult = this.checkForGameCompletion();
-        if(maybeResult) {
+        if (maybeResult) {
             this.gamePhase = GamePhase.Over;
         }
         return maybeResult;
@@ -269,25 +269,25 @@ export class WallGoGame {
             allPlayersReachableRegions.push(this.getReachableRegionForPlayer(player));
         }
 
-        for(let x = 0; x < this.config.boardSize; x++) {
-            for(let y = 0; y < this.config.boardSize; y++) {
+        for (let x = 0; x < this.config.boardSize; x++) {
+            for (let y = 0; y < this.config.boardSize; y++) {
                 let foundFirstReachablePlayer = false;
-                for(let player = 0; player < this.config.numPlayers; player++) {
-                    if(foundFirstReachablePlayer){
+                for (let player = 0; player < this.config.numPlayers; player++) {
+                    if (foundFirstReachablePlayer) {
                         // a stone is reachable by more than one player, the game is not over
                         return null;
                     }
-                    if(allPlayersReachableRegions[player].cells[x][y]) {
+                    if (allPlayersReachableRegions[player].cells[x][y]) {
                         foundFirstReachablePlayer = true;
                     }
-                } 
+                }
             }
         }
         // find the player with the largest region
         let winner = 0;
         let maxRegionSize = allPlayersReachableRegions[0].size;
-        for(let player = 1; player < this.config.numPlayers; player++) {
-            if(allPlayersReachableRegions[player].size > maxRegionSize) {
+        for (let player = 1; player < this.config.numPlayers; player++) {
+            if (allPlayersReachableRegions[player].size > maxRegionSize) {
                 winner = player;
                 maxRegionSize = allPlayersReachableRegions[player].size;
             }

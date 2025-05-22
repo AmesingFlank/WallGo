@@ -72,12 +72,12 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         <div className={`player-indicator player-${currentPlayer}`} />
                     </div>
                 </div>
-                <div className="game-board" 
+                <div className="game-board"
                     onMouseMove={(e) => {
                         const rect = e.currentTarget.getBoundingClientRect();
                         const x = Math.floor((e.clientX - rect.left) / cellSize);
                         const y = Math.floor((e.clientY - rect.top) / cellSize);
-                        
+
                         if (gamePhase === GamePhase.PlacingStones) {
                             this.setState({
                                 hoverX: x,
@@ -86,10 +86,10 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                             });
                         } else if (gamePhase === GamePhase.Moving) {
                             const stones = this.state.game.getStones();
-                            const stone = stones[currentPlayer].find(s => 
+                            const stone = stones[currentPlayer].find(s =>
                                 s.position.x === x && s.position.y === y
                             );
-                            
+
                             this.setState({
                                 hoverX: x,
                                 hoverY: y,
@@ -104,11 +104,11 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         const stones = this.state.game.getStones();
                         const currentPlayer = this.state.game.getCurrentPlayer();
                         const remainingSteps = this.state.game.getRemainingStepsAllowedForCurrentPlayer();
-                        
+
                         if (gamePhase === GamePhase.PlacingStones && this.state.isValidHover) {
                             try {
                                 this.state.game.placeStone(this.state.hoverX, this.state.hoverY);
-                                this.setState({ 
+                                this.setState({
                                     game: this.state.game,
                                     hoverX: -1,
                                     hoverY: -1,
@@ -118,10 +118,10 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 console.error('Error placing stone:', error);
                             }
                         } else if (gamePhase === GamePhase.Moving) {
-                            const stone = stones[currentPlayer].find(s => 
+                            const stone = stones[currentPlayer].find(s =>
                                 s.position.x === x && s.position.y === y
                             );
-                            
+
                             if (stone && remainingSteps > 0) {
                                 const reachablePositions = this.state.game.getReachablePositionsInOneStep(stone.position);
                                 this.setState({
@@ -134,7 +134,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                             } else if (this.state.selectedStone && remainingSteps > 0) {
                                 try {
                                     const placableWalls = this.state.game.moveStone(this.state.selectedStone, x, y);
-                                    this.setState({ 
+                                    this.setState({
                                         game: this.state.game,
                                         selectedStone: null,
                                         reachablePositions: [],
@@ -168,11 +168,11 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         }} />
                     ))}
                     {/* Render stones */}
-                    {stones.map((playerStones, playerIndex) => 
+                    {stones.map((playerStones, playerIndex) =>
                         playerStones.map((stone) => (
-                            <Stone key={`${playerIndex}-${stone.index}`} 
-                                player={playerIndex} 
-                                x={stone.position.x} 
+                            <Stone key={`${playerIndex}-${stone.index}`}
+                                player={playerIndex}
+                                x={stone.position.x}
                                 y={stone.position.y}
                                 isMovable={gamePhase === GamePhase.Moving && playerIndex === currentPlayer} />
                         ))
@@ -180,8 +180,8 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                     {/* Add hover effect */}
                     {gamePhase === GamePhase.PlacingStones && this.state.isValidHover && (
                         <div className={`cell-hover player-${currentPlayer}`} style={{
-                            left: `${this.state.hoverX * cellSize + cellSize/2}px`,
-                            top: `${this.state.hoverY * cellSize + cellSize/2}px`
+                            left: `${this.state.hoverX * cellSize + cellSize / 2}px`,
+                            top: `${this.state.hoverY * cellSize + cellSize / 2}px`
                         }} />
                     )}
                     {/* Show reachable positions */}
@@ -189,27 +189,28 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         <>
                             {this.state.reachablePositions.map((pos, index) => (
                                 <div key={index} className={`cell-hover player-${currentPlayer}`} style={{
-                                    left: `${pos.x * cellSize + cellSize/2}px`,
-                                    top: `${pos.y * cellSize + cellSize/2}px`
+                                    left: `${pos.x * cellSize + cellSize / 2}px`,
+                                    top: `${pos.y * cellSize + cellSize / 2}px`
                                 }} />
                             ))}
                             {/* Show wall placement indicators */}
                             {this.state.game.getPlacableWallForStone(this.state.selectedStone).map((wall, index) => {
                                 console.log('Wall:', wall);
                                 const isHorizontal = wall.direction === WallDirection.Horizontal;
-                                const wallSize = isHorizontal ? 1 : cellSize;
-                                const wallLength = isHorizontal ? cellSize : 1;
-                                const wallPosition = isHorizontal 
-                                    ? { left: `${wall.x * cellSize}px`, top: `${wall.y * cellSize}px` }
-                                    : { left: `${wall.x * cellSize}px`, top: `${wall.y * cellSize}px` };
+                                const wallThickness = 4;
+                                const wallHeight = isHorizontal ? wallThickness : cellSize + wallThickness;
+                                const wallWidth = isHorizontal ? cellSize + wallThickness : wallThickness;
+                                const wallPosition = isHorizontal
+                                    ? { left: `${wall.x * cellSize - wallThickness / 2}px`, top: `${wall.y * cellSize - wallThickness / 2}px` }
+                                    : { left: `${wall.x * cellSize - wallThickness / 2}px`, top: `${wall.y * cellSize - wallThickness / 2}px` };
                                 return (
-                                    <div 
+                                    <div
                                         key={index}
                                         className={`wall-indicator ${isHorizontal ? 'horizontal' : 'vertical'}`}
                                         style={{
                                             ...wallPosition,
-                                            width: `${wallLength}px`,
-                                            height: `${wallSize}px`
+                                            width: `${wallWidth}px`,
+                                            height: `${wallHeight}px`
                                         }}
                                     />
                                 );

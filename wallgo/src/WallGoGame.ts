@@ -74,11 +74,11 @@ export class WallGoGame {
         this.cells = Array(this.config.boardSize).fill(null).map(() =>
             Array(this.config.boardSize).fill(null)
         );
-        this.horizontalWalls = Array(this.config.boardSize + 1).fill(null).map(() =>
-            Array(this.config.boardSize).fill(null)
-        );
-        this.verticalWalls = Array(this.config.boardSize).fill(null).map(() =>
+        this.horizontalWalls = Array(this.config.boardSize).fill(null).map(() =>
             Array(this.config.boardSize + 1).fill(null)
+        );
+        this.verticalWalls = Array(this.config.boardSize + 1).fill(null).map(() =>
+            Array(this.config.boardSize).fill(null)
         );
         this.stones = Array(this.config.numPlayers).fill(null).map(() =>
             []

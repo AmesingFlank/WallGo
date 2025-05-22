@@ -203,6 +203,30 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                             left: `${colIndex * cellSize}px`
                         }} />
                     ))}
+                    {/* Draw cell ownership indicators */}
+                    {gamePhase === GamePhase.Over && this.state.result && (
+                        <>
+                            {[...Array(boardSize)].map((_, x) => (
+                                [...Array(boardSize)].map((_, y) => {
+                                    const cellOwner = this.state.result!.regions.findIndex(region => 
+                                        region.cells[x][y]
+                                    );
+                                    return (
+                                        <div
+                                            key={`cell-${x}-${y}`}
+                                            className={`cell-ownership ${cellOwner >= 0 ? `player-${cellOwner}` : 'unowned'}`}
+                                            style={{
+                                                top: `${y * cellSize}px`,
+                                                left: `${x * cellSize}px`,
+                                                width: `${cellSize}px`,
+                                                height: `${cellSize}px`
+                                            }}
+                                        />
+                                    );
+                                })
+                            ))}
+                        </>
+                    )}
                     {/* Draw permanent walls */}
                     {this.state.game.getHorizontalWalls().map((row, rowIndex) => {
                         return row.map((wall, colIndex) => {

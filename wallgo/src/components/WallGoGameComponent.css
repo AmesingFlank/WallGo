@@ -89,6 +89,23 @@
   background-color: #fff;
 }
 
+.cell-ownership {
+  position: absolute;
+  pointer-events: none;
+}
+
+.cell-ownership.player-0 {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.cell-ownership.player-1 {
+  background-color: rgba(0, 0, 255, 0.1);
+}
+
+.cell-ownership.unowned {
+  background-color: #fff;
+}
+
 .wall-indicator {
   position: absolute;
   opacity: 0.2;

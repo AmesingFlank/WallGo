@@ -4,6 +4,7 @@ import { Stone } from './Stone';
 import './WallGoGameComponent.css';
 
 interface WallGoGameComponentState {
+    config: GameConfig;
     game: WallGoGame;
     hoverX: number;
     hoverY: number;
@@ -17,8 +18,9 @@ interface WallGoGameComponentState {
 export class WallGoGameComponent extends Component<{}, WallGoGameComponentState> {
     constructor(props: {}) {
         super(props);
-        const config = new GameConfig();
+        let config = new GameConfig();
         this.state = {
+            config,
             game: new WallGoGame(config),
             hoverX: -1,
             hoverY: -1,
@@ -84,6 +86,32 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
             <div className="game-container">
                 <div className="game-info">
                     <p>Phase: {GamePhase[gamePhase]}</p>
+                    <div className="board-size-selector">
+                        <label>Board Size: </label>
+                        <select
+                            value={this.state.config.boardSize}
+                            onChange={(e) => {
+                                const newSize = parseInt(e.target.value);
+                                const newConfig = new GameConfig();
+                                newConfig.boardSize = newSize;
+                                this.setState({
+                                    config: newConfig,
+                                    game: new WallGoGame(newConfig),
+                                    hoverX: -1,
+                                    hoverY: -1,
+                                    isValidHover: false,
+                                    selectedStone: null,
+                                    lastMovedStone: null,
+                                    reachablePositions: [],
+                                    result: null
+                                });
+                            }}
+                        >
+                            {[5, 6, 7, 8, 9].map(size => (
+                                <option key={size} value={size}>{size}x{size}</option>
+                            ))}
+                        </select>
+                    </div>
                     {gamePhase === GamePhase.Over ? (
                         <div>
                             {this.state.result && (
@@ -208,7 +236,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         <>
                             {[...Array(boardSize)].map((_, x) => (
                                 [...Array(boardSize)].map((_, y) => {
-                                    const cellOwner = this.state.result!.regions.findIndex(region => 
+                                    const cellOwner = this.state.result!.regions.findIndex(region =>
                                         region.cells[x][y]
                                     );
                                     return (

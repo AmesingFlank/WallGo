@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/WallGo/static/css/main.47d3da2e.css",
+    "main.js": "/WallGo/static/js/main.300a60d9.js",
+    "static/js/453.f38a1919.chunk.js": "/WallGo/static/js/453.f38a1919.chunk.js",
+    "index.html": "/WallGo/index.html",
+    "main.47d3da2e.css.map": "/WallGo/static/css/main.47d3da2e.css.map",
+    "main.300a60d9.js.map": "/WallGo/static/js/main.300a60d9.js.map",
+    "453.f38a1919.chunk.js.map": "/WallGo/static/js/453.f38a1919.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.47d3da2e.css",
+    "static/js/main.300a60d9.js"
+  ]
+}

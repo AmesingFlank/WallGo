@@ -56,9 +56,6 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                     onClick={() => {
                         try {
                             const result = this.state.game.placeWallForStone(stone, wall);
-                            if (result) {
-                                console.log('Game over! Winner:', result.winners);
-                            }
                             this.setState({
                                 game: this.state.game,
                                 selectedStone: null,

@@ -275,6 +275,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         playerStones.map((stone) => (
                             <Stone key={`${playerIndex}-${stone.index}`}
                                 player={playerIndex}
+                                boardSize={boardSize}
                                 x={stone.position.x}
                                 y={stone.position.y}
                                 isMovable={gamePhase === GamePhase.Moving && playerIndex === currentPlayer && (this.state.lastMovedStone === null || this.state.lastMovedStone === stone)} />

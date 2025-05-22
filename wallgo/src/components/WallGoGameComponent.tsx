@@ -28,46 +28,9 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
         };
     }
 
-    handleStonePlaced = (row: number, col: number) => {
-        try {
-            this.state.game.placeStone(row, col);
-            this.setState({ game: this.state.game });
-        } catch (error) {
-            console.error('Error placing stone:', error);
-        }
-    };
-
-    handleMoveStone = (stone: any, row: number, col: number) => {
-        try {
-            const placableWalls = this.state.game.moveStone(stone, row, col);
-            this.setState({ 
-                game: this.state.game,
-                selectedStone: null, // Clear selection after move
-                lastMovedStone: stone,
-                reachablePositions: this.state.game.getRemainingStepsAllowedForCurrentPlayer() === 1 
-                    ? this.state.game.getReachablePositionsInOneStep(new StonePosition(row, col))
-                    : []
-            });
-        } catch (error) {
-            console.error('Error moving stone:', error);
-        }
-    };
-
-    handleWallPlaced = (stone: any, wall: any) => {
-        try {
-            const result = this.state.game.placeWallForStone(stone, wall);
-            if (result) {
-                console.log('Game over! Winner:', result.winner);
-            }
-            this.setState({ game: this.state.game });
-        } catch (error) {
-            console.error('Error placing wall:', error);
-        }
-    };
-
     renderWallIndicators(stone: StoneType | null, keyPrefix: string, cellSize: number) {
         if (!stone) return null;
-        
+
         const placableWalls = this.state.game.getPlacableWallForStone(stone);
         return placableWalls.map((wall, index) => {
             const isHorizontal = wall.direction === WallDirection.Horizontal;
@@ -119,12 +82,11 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 hoverY: y,
                                 isValidHover: x >= 0 && x < boardSize && y >= 0 && y < boardSize && this.state.game.canPlaceStone(x, y)
                             });
-                        } else if (gamePhase === GamePhase.Moving) {
+                        } else if (gamePhase === GamePhase.Moving && this.state.lastMovedStone === null) {
                             const stones = this.state.game.getStones();
                             const stone = stones[currentPlayer].find(s =>
                                 s.position.x === x && s.position.y === y
                             );
-
                             this.setState({
                                 hoverX: x,
                                 hoverY: y,
@@ -157,24 +119,22 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 s.position.x === x && s.position.y === y
                             );
 
-                            if (stone && remainingSteps > 0) {
+                            if (stone && this.state.lastMovedStone === null) {
                                 const reachablePositions = this.state.game.getReachablePositionsInOneStep(stone.position);
                                 this.setState({
                                     selectedStone: stone,
                                     reachablePositions
                                 });
                             } else if (this.state.selectedStone && remainingSteps > 0) {
-                                try {
+                                if (this.state.game.canMoveStoneTo(this.state.selectedStone, x, y)) {
                                     const placableWalls = this.state.game.moveStone(this.state.selectedStone, x, y);
                                     this.setState({
                                         game: this.state.game,
-                                        selectedStone: null,
+                                        selectedStone: this.state.selectedStone,
                                         lastMovedStone: this.state.selectedStone,
                                         reachablePositions: [],
                                         isValidHover: false
                                     });
-                                } catch (error) {
-                                    console.error('Error moving stone:', error);
                                 }
                             }
                         }
@@ -205,7 +165,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                 player={playerIndex}
                                 x={stone.position.x}
                                 y={stone.position.y}
-                                isMovable={gamePhase === GamePhase.Moving && playerIndex === currentPlayer} />
+                                isMovable={gamePhase === GamePhase.Moving && playerIndex === currentPlayer && (this.state.lastMovedStone === null || this.state.lastMovedStone === stone)} />
                         ))
                     )}
                     {gamePhase === GamePhase.PlacingStones && this.state.isValidHover && (

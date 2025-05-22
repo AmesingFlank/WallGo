@@ -66,7 +66,6 @@
 
 .wall-permanent {
   position: absolute;
-  background-color: #000;
   z-index: 0;
 }
 
@@ -76,6 +75,14 @@
 
 .wall-permanent.vertical {
   width: 6px;
+}
+
+.wall-permanent.player-0 {
+  background-color: #FF0000;
+}
+
+.wall-permanent.player-1 {
+  background-color: #0000FF;
 }
 
 .wall-indicator.player-0 {

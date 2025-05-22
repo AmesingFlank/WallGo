@@ -186,7 +186,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                     top: `${wall.y * cellSize - wallThickness / 2}px`
                                 };
                                 return (
-                                    <div key={`h-${rowIndex}-${colIndex}`} className="wall-permanent horizontal" style={{
+                                    <div key={`h-${rowIndex}-${colIndex}`} className={`wall-permanent horizontal player-${wall.player}`} style={{
                                         ...wallPosition,
                                         width: `${wallWidth}px`,
                                         height: `${wallHeight}px`
@@ -207,7 +207,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                                     top: `${wall.y * cellSize - wallThickness / 2}px`
                                 };
                                 return (
-                                    <div key={`v-${rowIndex}-${colIndex}`} className="wall-permanent vertical" style={{
+                                    <div key={`v-${rowIndex}-${colIndex}`} className={`wall-permanent vertical player-${wall.player}`} style={{
                                         ...wallPosition,
                                         width: `${wallWidth}px`,
                                         height: `${wallHeight}px`

@@ -52,7 +52,7 @@ class ReachableRegion {
 }
 
 export class GameResult {
-    constructor(public winner: number, public regions: ReachableRegion[]) { }
+    constructor(public winners: number[], public regions: ReachableRegion[]) { }
 }
 
 export class WallGoGame {
@@ -288,15 +288,17 @@ export class WallGoGame {
             }
         }
         // find the player with the largest region
-        let winner = 0;
+        let winners: number[] = [0];
         let maxRegionSize = allPlayersReachableRegions[0].size;
         for (let player = 1; player < this.config.numPlayers; player++) {
             if (allPlayersReachableRegions[player].size > maxRegionSize) {
-                winner = player;
+                winners = [player];
                 maxRegionSize = allPlayersReachableRegions[player].size;
+            } else if (allPlayersReachableRegions[player].size === maxRegionSize) {
+                winners.push(player);
             }
         }
-        return new GameResult(winner, allPlayersReachableRegions);
+        return new GameResult(winners, allPlayersReachableRegions);
     }
 
 

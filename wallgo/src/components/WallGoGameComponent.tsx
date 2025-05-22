@@ -55,7 +55,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         try {
                             const result = this.state.game.placeWallForStone(stone, wall);
                             if (result) {
-                                console.log('Game over! Winner:', result.winner);
+                                console.log('Game over! Winner:', result.winners);
                             }
                             this.setState({
                                 game: this.state.game,
@@ -86,17 +86,25 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                     <p>Phase: {GamePhase[gamePhase]}</p>
                     {gamePhase === GamePhase.Over ? (
                         <div>
-                            <div className="player-indicator-container">
-                                <span>Winner: </span>
-                                <div className={`player-indicator player-${this.state.result?.winner}`} />
-                            </div>
                             {this.state.result && (
-                                <div className="scores-container">
-                                    {this.state.result.regions.map((region, player) => (
-                                        <div key={player} className="score-item">
-                                            <span className={`player-${player}`}>Player {player + 1}</span>: {region.size}
+                                <div>
+                                    {this.state.result.winners.length === 1 ? (
+                                        <div className="player-indicator-container">
+                                            <span>Winner: </span>
+                                            <div className={`player-indicator player-${this.state.result.winners[0]}`} />
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <div className="player-indicator-container">
+                                            <span>Draw! </span>
+                                        </div>
+                                    )}
+                                    <div className="scores-container">
+                                        {this.state.result.regions.map((region, player) => (
+                                            <div key={player} className="score-item">
+                                                <span className={`player-${player}`}>Player {player + 1}</span>: {region.size}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>

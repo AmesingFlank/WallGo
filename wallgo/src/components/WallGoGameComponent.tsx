@@ -178,12 +178,18 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                     {this.state.game.getHorizontalWalls().map((row, rowIndex) => {
                         return row.map((wall, colIndex) => {
                             if (wall) {
+                                const wallThickness = 6;
+                                const wallHeight = wallThickness;
+                                const wallWidth = cellSize + wallThickness;
+                                const wallPosition = {
+                                    left: `${wall.x * cellSize - wallThickness / 2}px`,
+                                    top: `${wall.y * cellSize - wallThickness / 2}px`
+                                };
                                 return (
                                     <div key={`h-${rowIndex}-${colIndex}`} className="wall-permanent horizontal" style={{
-                                        top: `${rowIndex * cellSize}px`,
-                                        left: `${colIndex * cellSize}px`,
-                                        width: `${cellSize}px`,
-                                        height: '6px'
+                                        ...wallPosition,
+                                        width: `${wallWidth}px`,
+                                        height: `${wallHeight}px`
                                     }} />
                                 );
                             }
@@ -193,12 +199,18 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                     {this.state.game.getVerticalWalls().map((row, rowIndex) => {
                         return row.map((wall, colIndex) => {
                             if (wall) {
+                                const wallThickness = 6;
+                                const wallHeight = cellSize + wallThickness;
+                                const wallWidth = wallThickness;
+                                const wallPosition = {
+                                    left: `${wall.x * cellSize - wallThickness / 2}px`,
+                                    top: `${wall.y * cellSize - wallThickness / 2}px`
+                                };
                                 return (
                                     <div key={`v-${rowIndex}-${colIndex}`} className="wall-permanent vertical" style={{
-                                        top: `${rowIndex * cellSize}px`,
-                                        left: `${colIndex * cellSize}px`,
-                                        width: '6px',
-                                        height: `${cellSize}px`
+                                        ...wallPosition,
+                                        width: `${wallWidth}px`,
+                                        height: `${wallHeight}px`
                                     }} />
                                 );
                             }

@@ -273,11 +273,11 @@ export class WallGoGame {
             for (let y = 0; y < this.config.boardSize; y++) {
                 let foundFirstReachablePlayer = false;
                 for (let player = 0; player < this.config.numPlayers; player++) {
-                    if (foundFirstReachablePlayer) {
-                        // a stone is reachable by more than one player, the game is not over
-                        return null;
-                    }
                     if (allPlayersReachableRegions[player].cells[x][y]) {
+                        if (foundFirstReachablePlayer) {
+                            // a stone is reachable by more than one player, the game is not over
+                            return null;
+                        }
                         foundFirstReachablePlayer = true;
                     }
                 }

@@ -26,6 +26,15 @@
   font-size: 16px;
 }
 
+.winner-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
 .player-indicator {
   width: 20px;
   height: 20px;

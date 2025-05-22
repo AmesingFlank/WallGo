@@ -55,7 +55,7 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                             if (result) {
                                 console.log('Game over! Winner:', result.winner);
                             }
-                            this.setState({ 
+                            this.setState({
                                 game: this.state.game,
                                 selectedStone: null,
                                 lastMovedStone: null,
@@ -81,10 +81,17 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
             <div className="game-container">
                 <div className="game-info">
                     <p>Phase: {GamePhase[gamePhase]}</p>
-                    <div className="player-indicator-container">
-                        <span>Current Player: </span>
-                        <div className={`player-indicator player-${currentPlayer}`} />
-                    </div>
+                    {gamePhase === GamePhase.Over ? (
+                        <div className="player-indicator-container">
+                            <span>Winner: </span>
+                            <div className={`player-indicator player-${this.state.game.getCurrentPlayer()}`} />
+                        </div>
+                    ) : (
+                        <div className="player-indicator-container">
+                            <span>Current Player: </span>
+                            <div className={`player-indicator player-${currentPlayer}`} />
+                        </div>
+                    )}
                 </div>
                 <div className="game-board"
                     onMouseMove={(e) => {

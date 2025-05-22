@@ -1,0 +1,152 @@
+import React, { Component } from 'react';
+import { WallGoGame, GamePhase, GameConfig } from '../WallGoGame';
+import { Stone } from './Stone';
+import './WallGoGameComponent.css';
+
+interface WallGoGameComponentState {
+    game: WallGoGame;
+    hoverX: number;
+    hoverY: number;
+    isValidHover: boolean;
+}
+
+export class WallGoGameComponent extends Component<{}, WallGoGameComponentState> {
+    constructor(props: {}) {
+        super(props);
+        const config = new GameConfig();
+        this.state = {
+            game: new WallGoGame(config),
+            hoverX: -1,
+            hoverY: -1,
+            isValidHover: false
+        };
+    }
+
+    handleStonePlaced = (row: number, col: number) => {
+        try {
+            this.state.game.placeStone(row, col);
+            this.setState({ game: this.state.game });
+        } catch (error) {
+            console.error('Error placing stone:', error);
+        }
+    };
+
+    handleMoveStone = (stone: any, row: number, col: number) => {
+        try {
+            const placableWalls = this.state.game.moveStone(stone, row, col);
+            this.setState({ game: this.state.game });
+        } catch (error) {
+            console.error('Error moving stone:', error);
+        }
+    };
+
+    handleWallPlaced = (stone: any, wall: any) => {
+        try {
+            const result = this.state.game.placeWallAfterMovingStone(stone, wall);
+            if (result) {
+                console.log('Game over! Winner:', result.winner);
+            }
+            this.setState({ game: this.state.game });
+        } catch (error) {
+            console.error('Error placing wall:', error);
+        }
+    };
+
+    render() {
+        const boardSize = 7; // Default board size from GameConfig
+        const cellSize = 500 / boardSize;
+        const currentPlayer = this.state.game.getCurrentPlayer();
+        const stones = this.state.game.getStones();
+        const gamePhase = this.state.game.getGamePhase();
+
+        return (
+            <div className="game-container">
+                <div className="game-info">
+                    <p>Phase: {GamePhase[gamePhase]}</p>
+                    <div className="player-indicator-container">
+                        <span>Current Player: </span>
+                        <div className={`player-indicator player-${currentPlayer}`} />
+                    </div>
+                </div>
+                <div className="game-board" 
+                    onMouseMove={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = Math.floor((e.clientX - rect.left) / cellSize);
+                        const y = Math.floor((e.clientY - rect.top) / cellSize);
+                        
+                        if (gamePhase === GamePhase.PlacingStones) {
+                            this.setState({
+                                hoverX: x,
+                                hoverY: y,
+                                isValidHover: x >= 0 && x < boardSize && y >= 0 && y < boardSize && this.state.game.canPlaceStone(x, y)
+                            });
+                        } else if (gamePhase === GamePhase.Moving) {
+                            const stones = this.state.game.getStones();
+                            const stone = stones[currentPlayer].find(s => 
+                                s.position.x === x && s.position.y === y
+                            );
+                            
+                            this.setState({
+                                hoverX: x,
+                                hoverY: y,
+                                isValidHover: stone !== undefined
+                            });
+                        }
+                    }}
+                    onClick={(e) => {
+                        if (gamePhase === GamePhase.PlacingStones && this.state.isValidHover) {
+                            try {
+                                this.state.game.placeStone(this.state.hoverX, this.state.hoverY);
+                                this.setState({ 
+                                    game: this.state.game,
+                                    hoverX: -1,
+                                    hoverY: -1,
+                                    isValidHover: false
+                                });
+                            } catch (error) {
+                                console.error('Error placing stone:', error);
+                            }
+                        }
+                    }}
+                    style={{
+                        position: 'relative',
+                        width: '500px',
+                        height: '500px',
+                        border: '1px solid #000',
+                        overflow: 'hidden'
+                    }}>
+                    {/* Draw horizontal lines */}
+                    {[...Array(boardSize + 1)].map((_, rowIndex) => (
+                        <div key={`h-${rowIndex}`} className="grid-line horizontal" style={{
+                            top: `${rowIndex * cellSize}px`
+                        }} />
+                    ))}
+                    {/* Draw vertical lines */}
+                    {[...Array(boardSize + 1)].map((_, colIndex) => (
+                        <div key={`v-${colIndex}`} className="grid-line vertical" style={{
+                            left: `${colIndex * cellSize}px`
+                        }} />
+                    ))}
+                    {/* Render stones */}
+                    {stones.map((playerStones, playerIndex) => 
+                        playerStones.map((stone) => (
+                            <Stone key={`${playerIndex}-${stone.index}`} 
+                                player={playerIndex} 
+                                x={stone.position.x} 
+                                y={stone.position.y}
+                                isMovable={gamePhase === GamePhase.Moving && playerIndex === currentPlayer} />
+                        ))
+                    )}
+                    {/* Add hover effect */}
+                    {gamePhase === GamePhase.PlacingStones && this.state.isValidHover && (
+                        <div className={`cell-hover player-${currentPlayer}`} style={{
+                            left: `${this.state.hoverX * cellSize + cellSize/2}px`,
+                            top: `${this.state.hoverY * cellSize + cellSize/2}px`
+                        }} />
+                    )}
+
+                </div>
+            </div>
+        );
+    }
+}

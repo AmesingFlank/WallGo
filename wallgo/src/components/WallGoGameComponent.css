@@ -1,0 +1,92 @@
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.game-info {
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-info p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.player-indicator-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.player-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: 5px;
+}
+
+.movable-stone {
+  cursor: grab;
+}
+
+.movable-stone:hover {
+  cursor: grabbing;
+}
+
+.player-indicator.player-0 {
+  background-color: #FF0000;
+}
+
+.player-indicator.player-1 {
+  background-color: #0000FF;
+}
+
+.game-board {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  border: 1px solid #000;
+  background-color: #fff;
+}
+
+.cell-hover {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  opacity: 0.3;
+  transform: translate(-50%, -50%);
+}
+
+.cell-hover.player-0 {
+  background-color: #FF0000;
+}
+
+.cell-hover.player-1 {
+  background-color: #0000FF;
+}
+
+.grid-line {
+  position: absolute;
+  background-color: #000;
+}
+
+.grid-line.horizontal {
+  height: 1px;
+  width: 100%;
+}
+
+.grid-line.vertical {
+  width: 1px;
+  height: 100%;
+}
+
+

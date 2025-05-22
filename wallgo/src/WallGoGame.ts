@@ -196,6 +196,9 @@ export class WallGoGame {
         if (this.gamePhase !== GamePhase.Moving) {
             return false;
         }
+        if(this.currentPlayer !== stone.player){
+            return false;
+        }
         if(this.remainingStepsAllowedForCurrentPlayer  === 0){
             return false;   
         }

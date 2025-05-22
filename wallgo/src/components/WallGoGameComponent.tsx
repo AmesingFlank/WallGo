@@ -49,6 +49,22 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                         width: `${wallWidth}px`,
                         height: `${wallHeight}px`
                     }}
+                    onClick={() => {
+                        try {
+                            const result = this.state.game.placeWallForStone(stone, wall);
+                            if (result) {
+                                console.log('Game over! Winner:', result.winner);
+                            }
+                            this.setState({ 
+                                game: this.state.game,
+                                selectedStone: null,
+                                lastMovedStone: null,
+                                reachablePositions: []
+                            });
+                        } catch (error) {
+                            console.error('Error placing wall:', error);
+                        }
+                    }}
                 />
             );
         });
@@ -158,6 +174,37 @@ export class WallGoGameComponent extends Component<{}, WallGoGameComponentState>
                             left: `${colIndex * cellSize}px`
                         }} />
                     ))}
+                    {/* Draw permanent walls */}
+                    {this.state.game.getHorizontalWalls().map((row, rowIndex) => {
+                        return row.map((wall, colIndex) => {
+                            if (wall) {
+                                return (
+                                    <div key={`h-${rowIndex}-${colIndex}`} className="wall-permanent horizontal" style={{
+                                        top: `${rowIndex * cellSize}px`,
+                                        left: `${colIndex * cellSize}px`,
+                                        width: `${cellSize}px`,
+                                        height: '6px'
+                                    }} />
+                                );
+                            }
+                            return null;
+                        });
+                    })}
+                    {this.state.game.getVerticalWalls().map((row, rowIndex) => {
+                        return row.map((wall, colIndex) => {
+                            if (wall) {
+                                return (
+                                    <div key={`v-${rowIndex}-${colIndex}`} className="wall-permanent vertical" style={{
+                                        top: `${rowIndex * cellSize}px`,
+                                        left: `${colIndex * cellSize}px`,
+                                        width: '6px',
+                                        height: `${cellSize}px`
+                                    }} />
+                                );
+                            }
+                            return null;
+                        });
+                    })}
                     {/* Render stones */}
                     {stones.map((playerStones, playerIndex) =>
                         playerStones.map((stone) => (
